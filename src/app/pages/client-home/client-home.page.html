@@ -16,8 +16,14 @@
     <p>Découvrez et réservez votre voiture idéale.</p>
   </div>
 
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement des voitures...</p>
+  </div>
+
   <!-- Stats -->
-  <ion-grid class="stats-grid">
+  <ion-grid class="stats-grid" *ngIf="!isLoading">
     <ion-row>
       <ion-col size="12" size-md="4">
         <ion-card class="stat-card available">
@@ -27,10 +33,10 @@
         </ion-card>
       </ion-col>
       <ion-col size="12" size-md="4">
-        <ion-card class="stat-card booking">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <h3>5</h3>
-          <p>Vos réservations</p>
+        <ion-card class="stat-card total">
+          <ion-icon name="car-sport-outline"></ion-icon>
+          <h3>{{ cars.length }}</h3>
+          <p>Total des voitures</p>
         </ion-card>
       </ion-col>
       <ion-col size="12" size-md="4">
@@ -44,26 +50,14 @@
   </ion-grid>
 
   <!-- Filter Segment -->
-  <ion-segment [(ngModel)]="selectedCategory" class="category-segment">
+  <ion-segment [(ngModel)]="selectedCategory" class="category-segment" *ngIf="!isLoading">
     <ion-segment-button value="all">
       <ion-label>Toutes</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="suv">
-      <ion-label>SUV</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="sedan">
-      <ion-label>Berline</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="luxury">
-      <ion-label>Luxe</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="electric">
-      <ion-label>Électrique</ion-label>
     </ion-segment-button>
   </ion-segment>
 
   <!-- Cars Grid -->
-  <ion-grid>
+  <ion-grid *ngIf="!isLoading">
     <ion-row>
       <ion-col
         size="12"
@@ -73,44 +67,63 @@
         class="fade-in"
       >
         <ion-card class="car-card">
-          <img [src]="car.image" alt="{{ car.make }}" class="car-img" />
+          <img 
+            [src]="car.photoUrl || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8'" 
+            alt="{{ car.marque }} {{ car.modele }}" 
+            class="car-img" 
+          />
           <ion-badge
-            [color]="car.availability ? 'success' : 'medium'"
+            [color]="car.disponible ? 'success' : 'medium'"
             class="availability-badge"
           >
-            {{ car.availability ? 'Disponible' : 'Réservée' }}
+            {{ car.disponible ? 'Disponible' : 'Réservée' }}
           </ion-badge>
           <ion-card-content>
-            <ion-card-title>{{ car.make }} {{ car.model }}</ion-card-title>
-            <p class="year">{{ car.year }}</p>
+            <ion-card-title>{{ car.marque }} {{ car.modele }}</ion-card-title>
+            <p class="year">Année: {{ car.annee }}</p>
             <div class="features">
-              <ion-badge
-                *ngFor="let feature of car.features"
-                color="light"
-                class="feature-badge"
-              >
-                {{ feature }}
+              <ion-badge color="light" class="feature-badge">
+                <ion-icon name="settings-outline"></ion-icon> {{ car.transmission }}
               </ion-badge>
+              <ion-badge color="light" class="feature-badge">
+                <ion-icon name="people-outline"></ion-icon> {{ car.nombrePlaces }} places
+              </ion-badge>
+              <ion-badge color="light" class="feature-badge">
+                <ion-icon name="flash-outline"></ion-icon> {{ car.typeCarburant }}
+              </ion-badge>
+            </div>
+            <div class="car-details">
+              <p><ion-icon name="card-outline"></ion-icon> <strong>Immatriculation:</strong> {{ car.immatriculation }}</p>
+              <p><ion-icon name="color-palette-outline"></ion-icon> <strong>Couleur:</strong> {{ car.couleur }}</p>
             </div>
             <div class="price-rating">
               <div>
-                <h2>${{ car.pricePerDay }} <span>/jour</span></h2>
-              </div>
-              <div>
-                <ion-icon name="star" color="warning"></ion-icon>
-                {{ car.rating }}
+                <h2>{{ car.prixParJour }} DT <span>/jour</span></h2>
               </div>
             </div>
             <ion-button
               expand="block"
-              [disabled]="!car.availability"
-              (click)="bookCar(car.id)"
-              color="primary"
+              [disabled]="!car.disponible"
+              (click)="openReservationForm(car)"
+              class="reserve-btn"
+              [color]="car.disponible ? 'primary' : 'medium'"
             >
-              {{ car.availability ? 'Réserver maintenant' : 'Indisponible' }}
+              <ion-icon name="calendar-outline" slot="start"></ion-icon>
+              {{ car.disponible ? 'Réserver maintenant' : 'Indisponible' }}
             </ion-button>
           </ion-card-content>
         </ion-card>
+      </ion-col>
+    </ion-row>
+    
+    <!-- Empty State -->
+    <ion-row *ngIf="filteredCars.length === 0">
+      <ion-col class="ion-text-center">
+        <div class="empty-state">
+          <ion-icon name="car-outline" size="large" color="medium"></ion-icon>
+          <h3>Aucune voiture disponible</h3>
+          <p>Revenez plus tard pour voir nos offres</p>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>

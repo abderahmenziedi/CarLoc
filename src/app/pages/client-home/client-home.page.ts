@@ -1,19 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController, AlertController } from '@ionic/angular';
+import { CarService, Car } from '../../services/car.service';
 
-interface Car {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  pricePerDay: number;
-  availability: boolean;
-  category: 'suv' | 'sedan' | 'luxury' | 'electric';
-  image: string;
-  features: string[];
-  rating: number;
+interface Reservation {
+  carId: string;
+  numberOfDays: number;
 }
 
 @Component({
@@ -23,99 +16,192 @@ interface Car {
   styleUrls: ['./client-home.page.scss'],
   imports: [CommonModule, IonicModule, FormsModule],
 })
-export class ClientHomePage {
+export class ClientHomePage implements OnInit {
   selectedCategory: string = 'all';
-
+  cars: Car[] = [];
+  allCars: Car[] = [];
+  isLoading: boolean = false;
+  
   currentUser = {
-    name: 'John Doe',
-    avatar: 'https://ionicframework.com/docs/demos/api/avatar/avatar.svg',
+    name: 'Client',
+    avatar: 'assets/logo0.jpg',
   };
 
-  cars: Car[] = [
-    {
-      id: '1',
-      make: 'Toyota',
-      model: 'RAV4',
-      year: 2023,
-      pricePerDay: 60,
-      availability: true,
-      category: 'suv',
-      image: 'https://images.unsplash.com/photo-1617814079827-88f24bfb9f8f',
-      features: ['Automatic', '5 Seats', 'AC'],
-      rating: 4.6,
-    },
-    {
-      id: '2',
-      make: 'Honda',
-      model: 'Civic',
-      year: 2022,
-      pricePerDay: 45,
-      availability: true,
-      category: 'sedan',
-      image: 'https://images.unsplash.com/photo-1597764699510-1f4d6c6aa0f1',
-      features: ['Manual', '4 Doors', 'Hybrid'],
-      rating: 4.4,
-    },
-    {
-      id: '3',
-      make: 'BMW',
-      model: 'X5',
-      year: 2023,
-      pricePerDay: 120,
-      availability: true,
-      category: 'luxury',
-      image: 'https://images.unsplash.com/photo-1616788076590-7d9cfcb2b273',
-      features: ['Automatic', '4WD', 'Leather Seats'],
-      rating: 4.8,
-    },
-    {
-      id: '4',
-      make: 'Tesla',
-      model: 'Model 3',
-      year: 2023,
-      pricePerDay: 95,
-      availability: true,
-      category: 'electric',
-      image: 'https://images.unsplash.com/photo-1610465299990-d46d9c2f19c5',
-      features: ['Electric', 'Autopilot', 'Sunroof'],
-      rating: 4.9,
-    },
-    {
-      id: '5',
-      make: 'Mercedes',
-      model: 'C-Class',
-      year: 2022,
-      pricePerDay: 110,
-      availability: false,
-      category: 'luxury',
-      image: 'https://images.unsplash.com/photo-1617358574072-72d1f5b87d18',
-      features: ['Automatic', 'Leather', 'GPS'],
-      rating: 4.7,
-    },
-  ];
+  // Reservation form data
+  reservationData: Reservation = {
+    carId: '',
+    numberOfDays: 1
+  };
+  selectedCar: Car | null = null;
 
-  constructor(private toastCtrl: ToastController) {}
+  constructor(
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    private carService: CarService
+  ) {}
+
+  async ngOnInit() {
+    await this.loadAllCars();
+  }
+
+  async loadAllCars() {
+    this.isLoading = true;
+    try {
+      // Get all cars from Firestore
+      const q = await this.carService['firestore'];
+      const carsCollection = await import('@angular/fire/firestore').then(m => 
+        m.collection(this.carService['firestore'], 'cars')
+      );
+      const getDocs = await import('@angular/fire/firestore').then(m => m.getDocs);
+      const snap = await getDocs(carsCollection);
+      
+      this.allCars = snap.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      } as Car));
+      
+      this.cars = [...this.allCars];
+    } catch (error) {
+      console.error('Error loading cars:', error);
+      const toast = await this.toastCtrl.create({
+        message: 'Erreur lors du chargement des voitures',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    } finally {
+      this.isLoading = false;
+    }
+  }
 
   get availableCarsCount(): number {
-    return this.cars.filter((c) => c.availability).length;
+    return this.cars.filter((c) => c.disponible).length;
   }
 
   get filteredCars(): Car[] {
     if (this.selectedCategory === 'all') return this.cars;
-    return this.cars.filter((c) => c.category === this.selectedCategory);
+    // You can add category filtering based on car properties if needed
+    return this.cars;
   }
 
-  async bookCar(carId: string) {
-    const car = this.cars.find((c) => c.id === carId);
-    if (!car) return;
+  async openReservationForm(car: Car) {
+    if (!car.disponible) {
+      const toast = await this.toastCtrl.create({
+        message: 'Cette voiture n\'est pas disponible',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
 
-    car.availability = false;
+    this.selectedCar = car;
+    this.reservationData = {
+      carId: car.id || '',
+      numberOfDays: 1
+    };
 
-    const toast = await this.toastCtrl.create({
-      message: `You booked the ${car.make} ${car.model}!`,
-      duration: 2000,
-      color: 'success',
+    const totalPrice = car.prixParJour * this.reservationData.numberOfDays;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Réserver ' + car.marque + ' ' + car.modele,
+      message: 'Combien de jours souhaitez-vous réserver cette voiture?',
+      inputs: [
+        {
+          name: 'numberOfDays',
+          type: 'number',
+          placeholder: 'Nombre de jours',
+          min: 1,
+          value: 1
+        }
+      ],
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Confirmer',
+          handler: (data) => {
+            if (data.numberOfDays && data.numberOfDays > 0) {
+              this.confirmReservation(car, parseInt(data.numberOfDays));
+              return true;
+            } else {
+              this.showToast('Veuillez entrer un nombre de jours valide', 'warning');
+              return false;
+            }
+          }
+        }
+      ]
     });
-    toast.present();
+
+    await alert.present();
+  }
+
+  async confirmReservation(car: Car, numberOfDays: number) {
+    const totalPrice = car.prixParJour * numberOfDays;
+    
+    const confirmAlert = await this.alertCtrl.create({
+      header: 'Confirmer la réservation',
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Voiture:</strong> ${car.marque} ${car.modele}</p>
+          <p><strong>Année:</strong> ${car.annee}</p>
+          <p><strong>Prix par jour:</strong> ${car.prixParJour} DT</p>
+          <p><strong>Nombre de jours:</strong> ${numberOfDays}</p>
+          <p style="color: #2563eb; font-size: 18px;"><strong>Total:</strong> ${totalPrice} DT</p>
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Confirmer la réservation',
+          handler: () => {
+            this.processReservation(car, numberOfDays, totalPrice);
+          }
+        }
+      ]
+    });
+
+    await confirmAlert.present();
+  }
+
+  async processReservation(car: Car, numberOfDays: number, totalPrice: number) {
+    try {
+      // Here you would typically save the reservation to Firestore
+      // For now, we'll just update the car availability
+      if (car.id) {
+        await this.carService.updateCar(car.id, { disponible: false });
+      }
+
+      const toast = await this.toastCtrl.create({
+        message: `✅ Réservation confirmée! ${car.marque} ${car.modele} pour ${numberOfDays} jour(s) - Total: ${totalPrice} DT`,
+        duration: 3000,
+        color: 'success',
+        position: 'top'
+      });
+      await toast.present();
+
+      // Reload cars to reflect the updated availability
+      await this.loadAllCars();
+    } catch (error) {
+      console.error('Error processing reservation:', error);
+      await this.showToast('Erreur lors de la réservation', 'danger');
+    }
+  }
+
+  async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 }
