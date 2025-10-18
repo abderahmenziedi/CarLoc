@@ -1,0 +1,56 @@
+<ion-content class="mobile-login-content" [fullscreen]="true">
+  <div class="brand-header">
+    <div class="brand-logo">
+      <div class="logo-circle">
+        <img src="assets/car-logo.svg" alt="CarLoc Logo" class="car-logo-svg" />
+      </div>
+    </div>
+    <h1 class="app-title">CarLoc</h1>
+    <p class="app-tagline">Location de voitures simplifiée</p>
+  </div>
+
+  <div class="login-card-mobile">
+    <div class="card-header">
+      <h2 class="welcome-text">Bon retour !</h2>
+      <p class="subtitle-text">Connectez-vous pour continuer</p>
+    </div>
+
+    <form (ngSubmit)="login()" class="mobile-form">
+      <div class="input-wrapper">
+        <label class="input-label">Email</label>
+        <div class="input-container">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="votre@email.com" class="custom-input" required />
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label class="input-label">Mot de passe</label>
+        <div class="input-container">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" class="custom-input" required />
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-banner">
+        <ion-icon name="alert-circle"></ion-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <button type="submit" class="primary-button">
+        <span>Se connecter</span>
+        <ion-icon name="arrow-forward"></ion-icon>
+      </button>
+    </form>
+
+    <div class="bottom-section">
+      <p class="signup-text">
+        Pas encore de compte ?
+        <a [routerLink]="['/signup']" class="signup-link">S'inscrire</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-decoration bg-circle-1"></div>
+  <div class="bg-decoration bg-circle-2"></div>
+</ion-content>

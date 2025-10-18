@@ -1,0 +1,261 @@
+/* =========================== */
+/* 🎨 VARIABLES & BASE STYLES  */
+/* =========================== */
+
+$primary: #2563eb;
+$primary-dark: #1e40af;
+$success: #16a34a;
+$warning: #f59e0b;
+$light-bg: #f7f9fc;
+$text-color: #1a1a1a;
+$radius: 16px;
+$shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+
+ion-content {
+  --background: #{$light-bg};
+  color: $text-color;
+  font-family: 'Poppins', sans-serif;
+}
+
+ion-toolbar {
+  --background: #{$primary};
+  --color: white;
+}
+
+/* =========================== */
+/* 👋 WELCOME SECTION          */
+/* =========================== */
+
+.welcome-section {
+  text-align: center;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: white;
+  border-radius: $radius;
+  padding: 30px 20px;
+  margin: 15px 10px;
+  box-shadow: $shadow;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 15px;
+    opacity: 0.9;
+  }
+}
+
+/* =========================== */
+/* 📊 STATS SECTION            */
+/* =========================== */
+
+.stats-grid {
+  margin-top: 20px;
+
+  .stat-card {
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: $radius;
+    color: white;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    ion-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow;
+    }
+
+    &.available {
+      background: linear-gradient(135deg, $success, darken($success, 8%));
+    }
+
+    &.booking {
+      background: linear-gradient(135deg, $warning, darken($warning, 10%));
+    }
+
+    &.rating {
+      background: linear-gradient(135deg, $primary, $primary-dark);
+    }
+
+    h3 {
+      font-size: 22px;
+      margin: 5px 0;
+    }
+
+    p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  }
+}
+
+/* =========================== */
+/* 🚗 CAR LIST SECTION         */
+/* =========================== */
+
+.section-header {
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 20px;
+  color: $primary-dark;
+  margin-top: 20px;
+}
+
+.car-card {
+  position: relative;
+  border-radius: $radius;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow;
+  }
+
+  .car-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+
+  ion-card-content {
+    padding: 14px;
+  }
+
+  ion-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .year {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .features {
+    margin: 8px 0;
+
+    .feature-badge {
+      font-size: 12px;
+      margin: 3px;
+      border-radius: 10px;
+      background: #eef2ff;
+      color: $primary-dark;
+    }
+  }
+
+  .price-rating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+
+      span {
+        font-size: 12px;
+        color: #555;
+      }
+    }
+
+    ion-icon {
+      font-size: 16px;
+      margin-right: 3px;
+    }
+  }
+
+  .availability-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border-radius: 10px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  ion-button {
+    border-radius: 10px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+}
+
+/* =========================== */
+/* 📅 BOOKINGS SECTION         */
+/* =========================== */
+
+.booking-card {
+  border-radius: $radius;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow;
+  }
+
+  ion-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  ion-badge {
+    font-size: 12px;
+  }
+
+  ion-card-content {
+    font-size: 14px;
+
+    h3 {
+      font-weight: 600;
+      margin: 8px 0;
+    }
+
+    ion-button {
+      border-radius: 10px;
+      margin-top: 5px;
+    }
+  }
+}
+
+/* =========================== */
+/* 🌟 ANIMATIONS               */
+/* =========================== */
+
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================== */
+/* 🦶 FOOTER                   */
+/* =========================== */
+
+ion-footer {
+  background: #fff;
+  .footer-text {
+    color: #777;
+    font-size: 14px;
+    padding: 8px 0;
+  }
+}

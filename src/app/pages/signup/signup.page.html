@@ -1,0 +1,101 @@
+<ion-content class="mobile-login-content" [fullscreen]="true">
+  <div class="brand-header">
+    <div class="brand-logo">
+      <div class="logo-circle">
+        <img src="assets/car-logo.svg" alt="CarLoc Logo" class="car-logo-svg" />
+      </div>
+    </div>
+    <h1 class="app-title">CarLoc</h1>
+    <p class="app-tagline">Créer un compte</p>
+  </div>
+
+  <div class="login-card-mobile">
+    <div class="card-header">
+      <h2 class="welcome-text">Bienvenue !</h2>
+      <p class="subtitle-text">Créez votre compte pour continuer</p>
+    </div>
+
+    <form (ngSubmit)="signup()" class="mobile-form">
+      <div class="input-wrapper">
+        <label class="input-label">Email</label>
+        <div class="input-container">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="votre@email.com" class="custom-input" required />
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label class="input-label">Mot de passe</label>
+        <div class="input-container">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" class="custom-input" required />
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label class="input-label">Confirmer mot de passe</label>
+        <div class="input-container">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" class="custom-input" required />
+        </div>
+      </div>
+
+      <!-- Role Selection -->
+      <div class="input-wrapper">
+        <label class="input-label">Sélectionnez votre rôle</label>
+        <div class="role-selection">
+          <div 
+            class="role-card" 
+            [class.selected]="role === 'client'"
+            (click)="selectRole('client')">
+            <ion-icon name="person-outline" class="role-icon"></ion-icon>
+            <div class="role-info">
+              <h3>Client</h3>
+              <p>Je cherche à louer une voiture</p>
+            </div>
+            <div class="role-check">
+              <ion-icon name="checkmark-circle" *ngIf="role === 'client'"></ion-icon>
+            </div>
+          </div>
+
+          <div 
+            class="role-card" 
+            [class.selected]="role === 'locateur'"
+            (click)="selectRole('locateur')">
+            <ion-icon name="car-outline" class="role-icon"></ion-icon>
+            <div class="role-info">
+              <h3>Locateur</h3>
+              <p>Je veux louer ma voiture</p>
+            </div>
+            <div class="role-check">
+              <ion-icon name="checkmark-circle" *ngIf="role === 'locateur'"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div *ngIf="errorMessage" class="error-banner">
+        <ion-icon name="alert-circle"></ion-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <button type="submit" class="primary-button">
+        <span>S'inscrire</span>
+        <ion-icon name="arrow-forward"></ion-icon>
+      </button>
+    </form>
+  </div>
+
+  <!-- Bottom Sign Up Link -->
+  <div class="bottom-section">
+    <p class="signup-text">
+      Déjà un compte ?
+      <a [routerLink]="['/login']" class="signup-link">Se connecter</a>
+    </p>
+  </div>
+
+  <!-- Decorative Background Elements -->
+  <div class="bg-decoration bg-circle-1"></div>
+  <div class="bg-decoration bg-circle-2"></div>
+</ion-content>

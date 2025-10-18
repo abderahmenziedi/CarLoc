@@ -1,0 +1,7 @@
+{
+  "name": "carloc",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

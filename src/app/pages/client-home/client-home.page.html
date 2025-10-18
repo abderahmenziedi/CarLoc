@@ -1,0 +1,125 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>CarRental Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-avatar>
+        <img [src]="currentUser.avatar" />
+      </ion-avatar>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Welcome Section -->
+  <div class="welcome-section ion-padding">
+    <h2>Bienvenue, {{ currentUser.name }} 👋</h2>
+    <p>Découvrez et réservez votre voiture idéale.</p>
+  </div>
+
+  <!-- Stats -->
+  <ion-grid class="stats-grid">
+    <ion-row>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card available">
+          <ion-icon name="car-outline"></ion-icon>
+          <h3>{{ availableCarsCount }}</h3>
+          <p>Voitures disponibles</p>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card booking">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <h3>5</h3>
+          <p>Vos réservations</p>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card rating">
+          <ion-icon name="star-outline"></ion-icon>
+          <h3>4.8</h3>
+          <p>Note moyenne</p>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Filter Segment -->
+  <ion-segment [(ngModel)]="selectedCategory" class="category-segment">
+    <ion-segment-button value="all">
+      <ion-label>Toutes</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="suv">
+      <ion-label>SUV</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="sedan">
+      <ion-label>Berline</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="luxury">
+      <ion-label>Luxe</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="electric">
+      <ion-label>Électrique</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Cars Grid -->
+  <ion-grid>
+    <ion-row>
+      <ion-col
+        size="12"
+        size-md="6"
+        size-lg="4"
+        *ngFor="let car of filteredCars"
+        class="fade-in"
+      >
+        <ion-card class="car-card">
+          <img [src]="car.image" alt="{{ car.make }}" class="car-img" />
+          <ion-badge
+            [color]="car.availability ? 'success' : 'medium'"
+            class="availability-badge"
+          >
+            {{ car.availability ? 'Disponible' : 'Réservée' }}
+          </ion-badge>
+          <ion-card-content>
+            <ion-card-title>{{ car.make }} {{ car.model }}</ion-card-title>
+            <p class="year">{{ car.year }}</p>
+            <div class="features">
+              <ion-badge
+                *ngFor="let feature of car.features"
+                color="light"
+                class="feature-badge"
+              >
+                {{ feature }}
+              </ion-badge>
+            </div>
+            <div class="price-rating">
+              <div>
+                <h2>${{ car.pricePerDay }} <span>/jour</span></h2>
+              </div>
+              <div>
+                <ion-icon name="star" color="warning"></ion-icon>
+                {{ car.rating }}
+              </div>
+            </div>
+            <ion-button
+              expand="block"
+              [disabled]="!car.availability"
+              (click)="bookCar(car.id)"
+              color="primary"
+            >
+              {{ car.availability ? 'Réserver maintenant' : 'Indisponible' }}
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar color="light">
+    <div class="ion-text-center footer-text">
+      © 2025 CarRental. Tous droits réservés.
+    </div>
+  </ion-toolbar>
+</ion-footer>
