@@ -1,10 +1,289 @@
 <ion-header>
-  <ion-toolbar color="tertiary">
-    <ion-title>Hello from Locateur 👋</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Mes Voitures 🚗</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Bienvenue cher Locateur !</h2>
-  <ion-button color="medium" (click)="logout()">Déconnexion</ion-button>
+  <!-- En-tête et bouton d'ajout -->
+  <div class="header-section">
+    <h1>Gestion de vos véhicules</h1>
+    <ion-button 
+      expand="block" 
+      (click)="toggleForm()" 
+      [color]="showForm ? 'medium' : 'success'"
+      class="add-car-btn">
+      <ion-icon slot="start" [name]="showForm ? 'close-circle-outline' : 'add-circle-outline'"></ion-icon>
+      {{ showForm ? 'Annuler' : 'Ajouter une voiture' }}
+    </ion-button>
+  </div>
+
+  <!-- Formulaire d'ajout/modification -->
+  <ion-card *ngIf="showForm" class="form-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon [name]="isEditMode ? 'create-outline' : 'car-sport-outline'"></ion-icon>
+        {{ isEditMode ? 'Modifier la voiture' : 'Nouvelle voiture' }}
+      </ion-card-title>
+    </ion-card-header>
+    
+    <ion-card-content>
+      <form>
+        <!-- Marque -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="logo-model-s"></ion-icon> Marque *
+          </ion-label>
+          <ion-input 
+            type="text" 
+            [(ngModel)]="carForm.marque" 
+            name="marque"
+            placeholder="Ex: Toyota, Renault..."
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Modèle -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="car-outline"></ion-icon> Modèle *
+          </ion-label>
+          <ion-input 
+            type="text" 
+            [(ngModel)]="carForm.modele" 
+            name="modele"
+            placeholder="Ex: Corolla, Clio..."
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Année -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="calendar-outline"></ion-icon> Année *
+          </ion-label>
+          <ion-input 
+            type="number" 
+            [(ngModel)]="carForm.annee" 
+            name="annee"
+            min="1900"
+            [max]="2025"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Couleur -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="color-palette-outline"></ion-icon> Couleur *
+          </ion-label>
+          <ion-input 
+            type="text" 
+            [(ngModel)]="carForm.couleur" 
+            name="couleur"
+            placeholder="Ex: Noir, Blanc, Bleu..."
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Immatriculation -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="card-outline"></ion-icon> Immatriculation *
+          </ion-label>
+          <ion-input 
+            type="text" 
+            [(ngModel)]="carForm.immatriculation" 
+            name="immatriculation"
+            placeholder="Ex: AB-123-CD"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Prix par jour -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="cash-outline"></ion-icon> Prix par jour (€) *
+          </ion-label>
+          <ion-input 
+            type="number" 
+            [(ngModel)]="carForm.prixParJour" 
+            name="prixParJour"
+            min="0"
+            step="0.01"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <!-- Type de carburant -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="flash-outline"></ion-icon> Type de carburant
+          </ion-label>
+          <ion-select 
+            [(ngModel)]="carForm.typeCarburant" 
+            name="typeCarburant"
+            placeholder="Sélectionner">
+            <ion-select-option value="Essence">Essence</ion-select-option>
+            <ion-select-option value="Diesel">Diesel</ion-select-option>
+            <ion-select-option value="Électrique">Électrique</ion-select-option>
+            <ion-select-option value="Hybride">Hybride</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Nombre de places -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="people-outline"></ion-icon> Nombre de places
+          </ion-label>
+          <ion-select 
+            [(ngModel)]="carForm.nombrePlaces" 
+            name="nombrePlaces"
+            placeholder="Sélectionner">
+            <ion-select-option [value]="2">2 places</ion-select-option>
+            <ion-select-option [value]="4">4 places</ion-select-option>
+            <ion-select-option [value]="5">5 places</ion-select-option>
+            <ion-select-option [value]="7">7 places</ion-select-option>
+            <ion-select-option [value]="9">9 places</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Transmission -->
+        <ion-item lines="full">
+          <ion-label position="floating">
+            <ion-icon name="settings-outline"></ion-icon> Transmission
+          </ion-label>
+          <ion-select 
+            [(ngModel)]="carForm.transmission" 
+            name="transmission"
+            placeholder="Sélectionner">
+            <ion-select-option value="Manuelle">Manuelle</ion-select-option>
+            <ion-select-option value="Automatique">Automatique</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Disponibilité -->
+        <ion-item lines="none">
+          <ion-label>
+            <ion-icon name="checkmark-circle-outline"></ion-icon> Disponible à la location
+          </ion-label>
+          <ion-toggle 
+            [(ngModel)]="carForm.disponible" 
+            name="disponible"
+            color="success">
+          </ion-toggle>
+        </ion-item>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+          <ion-button 
+            expand="block" 
+            (click)="saveCar()" 
+            [disabled]="loading"
+            color="primary">
+            <ion-icon slot="start" name="save-outline"></ion-icon>
+            {{ isEditMode ? 'Modifier' : 'Enregistrer' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Liste des voitures -->
+  <div class="cars-list" *ngIf="!loading">
+    <!-- Message si aucune voiture -->
+    <ion-card *ngIf="cars.length === 0 && !showForm" class="empty-state">
+      <ion-card-content>
+        <ion-icon name="car-sport-outline" class="empty-icon"></ion-icon>
+        <h2>Aucune voiture ajoutée</h2>
+        <p>Commencez par ajouter votre première voiture pour la mettre en location.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Cartes des voitures -->
+    <ion-card *ngFor="let car of cars" class="car-card">
+      <ion-card-header>
+        <div class="car-header">
+          <div class="car-title-section">
+            <ion-card-title>{{ car.marque }} {{ car.modele }}</ion-card-title>
+            <ion-card-subtitle>
+              <ion-icon name="calendar-outline"></ion-icon> {{ car.annee }}
+            </ion-card-subtitle>
+          </div>
+          <ion-badge [color]="car.disponible ? 'success' : 'danger'" class="status-badge">
+            {{ car.disponible ? 'Disponible' : 'Indisponible' }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="car-details">
+          <div class="detail-item">
+            <ion-icon name="card-outline"></ion-icon>
+            <span>{{ car.immatriculation }}</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="color-palette-outline"></ion-icon>
+            <span>{{ car.couleur }}</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="flash-outline"></ion-icon>
+            <span>{{ car.typeCarburant }}</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ car.nombrePlaces }} places</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="settings-outline"></ion-icon>
+            <span>{{ car.transmission }}</span>
+          </div>
+          <div class="detail-item price">
+            <ion-icon name="cash-outline"></ion-icon>
+            <strong>{{ car.prixParJour }}€ / jour</strong>
+          </div>
+        </div>
+
+        <div class="car-actions">
+          <ion-button 
+            fill="outline" 
+            size="small" 
+            (click)="toggleDisponibilite(car)"
+            [color]="car.disponible ? 'warning' : 'success'">
+            <ion-icon slot="start" [name]="car.disponible ? 'ban-outline' : 'checkmark-circle-outline'"></ion-icon>
+            {{ car.disponible ? 'Marquer indisponible' : 'Marquer disponible' }}
+          </ion-button>
+          
+          <ion-button 
+            fill="outline" 
+            size="small" 
+            color="primary" 
+            (click)="editCar(car)">
+            <ion-icon slot="start" name="create-outline"></ion-icon>
+            Modifier
+          </ion-button>
+          
+          <ion-button 
+            fill="outline" 
+            size="small" 
+            color="danger" 
+            (click)="deleteCar(car)">
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            Supprimer
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>
