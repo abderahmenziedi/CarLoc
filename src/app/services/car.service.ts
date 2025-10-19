@@ -15,6 +15,7 @@ export interface Car {
   transmission: string;
   disponible: boolean;
   ownerId: string;
+  photoUrl?: string;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -41,6 +42,7 @@ export class CarService {
       nombrePlaces: Number(car.nombrePlaces) || 5,
       transmission: car.transmission || 'Manuelle',
       disponible: car.disponible !== undefined ? car.disponible : true,
+      photoUrl: car.photoUrl || '',
       ownerId: user.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -74,6 +76,7 @@ export class CarService {
     if (updates.nombrePlaces !== undefined) cleanUpdates.nombrePlaces = Number(updates.nombrePlaces);
     if (updates.transmission !== undefined) cleanUpdates.transmission = updates.transmission;
     if (updates.disponible !== undefined) cleanUpdates.disponible = updates.disponible;
+    if (updates.photoUrl !== undefined) cleanUpdates.photoUrl = updates.photoUrl;
     
     await updateDoc(carRef, cleanUpdates);
   }

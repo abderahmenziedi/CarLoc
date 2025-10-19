@@ -14,9 +14,20 @@ import { CarService, Car } from '../../services/car.service';
 })
 export class LocateurHomePage implements OnInit {
   cars: Car[] = [];
+  filteredCars: Car[] = [];
   loading = false;
   showForm = false;
   isEditMode = false;
+  selectedFilter: 'all' | 'available' | 'unavailable' = 'all';
+  
+  // Statistics properties
+  totalCars = 0;
+  availableCars = 0;
+  unavailableCars = 0;
+  
+  // Photo handling
+  selectedPhoto: File | null = null;
+  photoPreview: string | null = null;
   
   carForm: Partial<Car> = {
     marque: '',
@@ -28,7 +39,8 @@ export class LocateurHomePage implements OnInit {
     typeCarburant: 'Essence',
     nombrePlaces: 5,
     transmission: 'Manuelle',
-    disponible: true
+    disponible: true,
+    photoUrl: ''
   };
 
   currentEditId: string | null = null;
@@ -48,10 +60,32 @@ export class LocateurHomePage implements OnInit {
     try {
       this.loading = true;
       this.cars = await this.carService.getOwnerCars();
+      this.updateStatistics();
+      this.applyFilter();
     } catch (error: any) {
       this.showToast('Erreur lors du chargement des voitures', 'danger');
     } finally {
       this.loading = false;
+    }
+  }
+
+  updateStatistics() {
+    this.totalCars = this.cars.length;
+    this.availableCars = this.cars.filter(car => car.disponible).length;
+    this.unavailableCars = this.cars.filter(car => !car.disponible).length;
+  }
+
+  applyFilter() {
+    switch (this.selectedFilter) {
+      case 'available':
+        this.filteredCars = this.cars.filter(car => car.disponible);
+        break;
+      case 'unavailable':
+        this.filteredCars = this.cars.filter(car => !car.disponible);
+        break;
+      default:
+        this.filteredCars = [...this.cars];
+        break;
     }
   }
 
@@ -73,10 +107,27 @@ export class LocateurHomePage implements OnInit {
       typeCarburant: 'Essence',
       nombrePlaces: 5,
       transmission: 'Manuelle',
-      disponible: true
+      disponible: true,
+      photoUrl: ''
     };
     this.isEditMode = false;
     this.currentEditId = null;
+    this.selectedPhoto = null;
+    this.photoPreview = null;
+  }
+
+  onPhotoSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedPhoto = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.photoPreview = reader.result as string;
+        // Update the form with the preview URL
+        this.carForm.photoUrl = this.photoPreview;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   async saveCar() {
@@ -87,6 +138,9 @@ export class LocateurHomePage implements OnInit {
 
     try {
       this.loading = true;
+      
+      // For now, we'll save the photo as a base64 string
+      // In a production app, you would upload to a storage service and save the URL
       
       if (this.isEditMode && this.currentEditId) {
         await this.carService.updateCar(this.currentEditId, this.carForm);
@@ -109,22 +163,31 @@ export class LocateurHomePage implements OnInit {
     this.isEditMode = true;
     this.currentEditId = car.id || null;
     this.carForm = { ...car };
+    this.photoPreview = car.photoUrl || null;
+    this.selectedPhoto = null;
     this.showForm = true;
   }
 
   async deleteCar(car: Car) {
-    const alert = await this.alertController.create({
-      header: 'Confirmer la suppression',
+    // Create a toast with action buttons
+    const toast = await this.toastController.create({
       message: `Voulez-vous vraiment supprimer ${car.marque} ${car.modele} ?`,
+      duration: 0, // Don't auto-dismiss
+      color: 'warning',
+      position: 'top',
       buttons: [
         {
           text: 'Annuler',
-          role: 'cancel'
+          role: 'cancel',
+          handler: () => {
+            // User cancelled the deletion
+          }
         },
         {
-          text: 'Supprimer',
-          role: 'destructive',
+          text: 'Oui',
+          role: 'confirm',
           handler: async () => {
+            // User confirmed deletion
             try {
               this.loading = true;
               await this.carService.deleteCar(car.id!);
@@ -140,7 +203,7 @@ export class LocateurHomePage implements OnInit {
       ]
     });
 
-    await alert.present();
+    await toast.present();
   }
 
   async toggleDisponibilite(car: Car) {
